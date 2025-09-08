@@ -32,3 +32,19 @@ proc validateDirectory*(path: string) =
 
   if not dirExists(path):
     raise newException(AppError, "Directory does not exist: " & path)
+
+proc parseDirectoryEntry*(node: JsonNode): DirectoryEntry =
+  result.path = node["path"].getStr()
+  result.commands = @[]
+  if node.hasKey("commands") and node["commands"].kind == JArray:
+    for cmd in node["commands"]:
+      if cmd.kind == JString:
+        result.commands.add(cmd.getStr())
+
+proc toJson*(entry: DirectoryEntry): JsonNode =
+  result = newJObject()
+  result["path"] = newJString(entry.path)
+  var commandsArray = newJArray()
+  for cmd in entry.commands:
+    commandsArray.add(newJString(cmd))
+  result["commands"] = commandsArray

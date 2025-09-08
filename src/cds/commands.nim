@@ -1,4 +1,4 @@
-import os, json
+import os, json, strutils
 import ./types, ./storage
 
 proc handleSaveCommand*(config: AppConfig, paths: var JsonNode, alias: string) =
@@ -9,9 +9,28 @@ proc handleSaveCommand*(config: AppConfig, paths: var JsonNode, alias: string) =
   let targetPath = getCurrentDir()
   validateDirectory(targetPath)
 
-  paths[alias] = newJString(targetPath)
+  var entry: DirectoryEntry
+  entry.path = targetPath
+  entry.commands = @[]
+
+  paths[alias] = toJson(entry)
   saveStorage(config, paths)
   echo "Saved path '", alias, "' -> ", targetPath
+
+proc handleConfigureCommand*(config: AppConfig, paths: var JsonNode, alias: string, command: string) =
+
+  if alias.len == 0:
+    raise newException(AppError, "Alias cannot be empty")
+
+  if not paths.hasKey(alias):
+    raise newException(AppError, "Alias not found: " & alias)
+
+  var entry = parseDirectoryEntry(paths[alias])
+  entry.commands.add(command)
+
+  paths[alias] = toJson(entry)
+  saveStorage(config, paths)
+  echo "Added command '", command, "' to alias '", alias, "'"
 
 proc handleListCommand*(paths: JsonNode) =
 
@@ -19,23 +38,25 @@ proc handleListCommand*(paths: JsonNode) =
     echo "No saved paths found."
     return
 
-  var hasValidPaths = false
   for k, v in paths:
-    let path = v.getStr()
-    if dirExists(path):
-      echo k, " -> ", path
-      hasValidPaths = true
+    let entry = parseDirectoryEntry(v)
+    if dirExists(entry.path):
+      echo k, " -> ", entry.path
+      if entry.commands.len > 0:
+        echo "    Commands: ", entry.commands.join(", ")
     else:
-      echo k, " -> ", path, " (invalid directory)"
-
-  if not hasValidPaths:
-    echo "No valid directories found in saved paths."
+      echo k, " -> ", entry.path, " (invalid directory)"
 
 proc handleJumpCommand*(paths: JsonNode, alias: string): string =
 
   if not paths.hasKey(alias):
     raise newException(AppError, "Alias not found: " & alias)
 
-  let targetPath = paths[alias].getStr()
-  validateDirectory(targetPath)
-  return targetPath
+  let entry = parseDirectoryEntry(paths[alias])
+  validateDirectory(entry.path)
+
+  var resultStr = entry.path
+  if entry.commands.len > 0:
+    resultStr &= "|CDS_COMMANDS|" & entry.commands.join("|CDS_SEP|")
+
+  return resultStr
