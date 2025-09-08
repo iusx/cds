@@ -8,7 +8,13 @@ Usage: cds save <alias> | cds <alias> | cds list
 ## compile
 
 ```
-nim c -d:release cds.nim
+nim c -d:release nim c -o:cds src/cds.nim
+
+# or use:
+nimble build
+nimble install
+
+save csd to ~/.nimble/bin/cds
 ```
 
 ### config file
