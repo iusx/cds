@@ -29,8 +29,33 @@ save csd to ~/.nimble/bin/cds
 ```
 ~/.cds_config.json: 
 {
-  "iusx": "/Users/uwu/Code/My/iusx",
-  "config-git": "/Users/uwu/Code/My/dotfiles"
+  "iusx": {
+    "path": "/Users/uwu/Code/My/iusx",
+    "commands": [
+      "nix-shell"
+    ],
+    "score": 12
+  },
+  "cds": {
+    "path": "/Users/uwu/Code/My/cds",
+    "commands": [],
+    "score": 5
+  },
+  "My": {
+    "path": "/Users/uwu/Code/My",
+    "commands": [],
+    "score": 5
+  },
+  "company": {
+    "path": "/Users/uwu/Code/Project/company",
+    "commands": [],
+    "score": 2
+  },
+  "video": {
+    "path": "/Users/uwu/Work/video",
+    "commands": [],
+    "score": 2
+  }
 }
 ```
 
@@ -40,4 +65,4 @@ cds next plan list:
 
 * [ ] **TUI**: For example, when using `c list`, you can search for shortcuts.
 * [x] **Execute scripts automatically**: After entering a directory via `c c iusx`, automatically execute the script commands recorded in `~/.cds_config.json`.
-* [ ] **Auto**: Can record automatically. For example, when in `/Users/uwu/Code/My/iusx`, it automatically records `iusx: /Users/uwu/Code/My/iusx`.
+* [x] **Auto**: Can record automatically. For example, when in `/Users/uwu/Code/My/iusx`, it automatically records `iusx: /Users/uwu/Code/My/iusx`.
